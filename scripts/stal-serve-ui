@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+ROOT="$(dirname "${BASH_SOURCE[0]}")/../"
+WDIR="$ROOT/servers/ui"
+
+cd $WDIR
+
+while (($#)); do
+	case "$1" in
+		-w | --watch) WATCH=true ;;
+		-r | --runtime) GO_RUNTIME=true ;; 
+	esac
+	shift
+done
+
+serve() {
+	if [[ -n $GO_RUNTIME ]] then
+		go run main.go
+	else
+		ui-server
+	fi
+}
+
+if [[ -n $WATCH ]] then
+	serve
+else
+	. $ROOT/scripts/util/background
+	LOGDIR="$ROOT/logs/servers/ui"
+	KILL_SCRIPT="$TMPSCRIPTS/stal-kill-ui-server-$TIMESTAMP"
+	background serve
+fi
