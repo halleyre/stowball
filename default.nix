@@ -1,6 +1,7 @@
 {
-  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/cf59864ef8aa2e17.tar.gz") {},
-  fenix ? import (fetchTarball "https://github.com/nix-community/fenix/archive/9ba6d89.tar.gz") {},
+  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/d24777934d.tar.gz") {},
+  fenix ? import (fetchTarball "https://github.com/nix-community/fenix/archive/6dfabfd.tar.gz")
+                 { inherit pkgs; },
 }:
 with pkgs; let
   rust = (with fenix; with latest; combine [
@@ -18,9 +19,11 @@ with pkgs; let
 in
 mkShell {
   packages = [
-    rust
     go
+    rust
     ui-server
+
+    wasm-pack
   ];
 
   shellHook =  ''
