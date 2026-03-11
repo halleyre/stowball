@@ -4,8 +4,10 @@ document.getElementById("aye").innerHTML = "start the rescue helicopter";
 /* ------------ *
  * Web Assembly *
  * ------------ */ 
-import greet from "./wasm-pack/stowball.js";
-greet()
+import init, { greet } from "./wasm-pack/stowball.js";
+init().then(()  => {
+  greet();
+});
 
 // probs success
 document.getElementById("bee").innerHTML = "build the helicopter";
