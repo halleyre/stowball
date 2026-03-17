@@ -2,13 +2,25 @@
 
 ROOT="$(dirname "${BASH_SOURCE[0]}")/../"
 cd $ROOT
+. ./scripts/util/cargo-args.sh
+BUILD+=(--target wasm32-unknown-unknown)
 
-. ./scripts/util/cargo-args
+while (($#)); do
+	case "$1" in
+		-d | --debug) DEBUG=true ;; 
+	esac
+	shift
+done
 
-wasm-pack build                 \
+if [[ -n $DEBUG ]] then
+	BUILD+=("${DEBUG[@]}")
+else
+	BUILD+=("${RELEASE[@]}")
+fi
+
+cargo "${BUILD[@]}"
+
+wasm-bindgen --target web       \
 	--out-dir "./build/wasm-pack" \
-	--target web                  \
-	--release --no-typescript     \
-	$ROOT                         \
-	--target-dir "./build/target" \
-	-Zpanic-immediate-abort -Zbuild-std=std,panic_abort
+	--no-typescript               \
+	./build/target/wasm32-unknown-unknown/release/stowball.wasm
