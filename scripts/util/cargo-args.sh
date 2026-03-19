@@ -2,8 +2,8 @@
 
 BUILD=(build --target-dir "./build/target")
 
-RELEASE=(--release
+RELEASE_ARGS=(--release
 	-Zpanic-immediate-abort
 	-Zbuild-std=std,panic_abort)
 
-DEBUG=()
+DEBUG_ARGS=()

@@ -3,7 +3,6 @@
 ROOT="$(dirname "${BASH_SOURCE[0]}")/../"
 cd $ROOT
 . ./scripts/util/cargo-args.sh
-BUILD+=(--target wasm32-unknown-unknown)
 
 while (($#)); do
 	case "$1" in
@@ -19,8 +18,3 @@ else
 fi
 
 cargo "${BUILD[@]}"
-
-wasm-bindgen --target web       \
-	--out-dir "./build/wasm-pack" \
-	--no-typescript               \
-	./build/target/wasm32-unknown-unknown/release/stowball.wasm

@@ -10,9 +10,9 @@ background() {
   mkdir -p "$LOGDIR"
   $1 > "$LOG" 2>&1 &
   PID=$(pgrep -P $!)
-  cat "$ROOT/scripts/util/stal-kill" \
-  	| sed "s:{{PID}}:$PID:"               \
-  	| sed "s:{{LOG}}:$LOG:"               \
+  cat "$ROOT/scripts/util/stal-kill.sh" \
+  	| sed "s:{{PID}}:$PID:"             \
+  	| sed "s:{{LOG}}:$LOG:"             \
   	> "$KILL_SCRIPT"
   chmod +x "$KILL_SCRIPT"
 }

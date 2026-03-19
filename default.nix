@@ -37,7 +37,20 @@ mkShell {
     rust
     ui-server
 
+    # dev runtime dependencies
+    libxkbcommon
+    libGL
+    wayland
+    vulkan-loader
+
     wasm-bindgen
+  ];
+
+  LD_LIBRARY_PATH = lib.makeLibraryPath [
+    libxkbcommon
+    libGL
+    wayland
+    vulkan-loader
   ];
 
   shellHook =  ''
