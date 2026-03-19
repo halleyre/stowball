@@ -147,10 +147,7 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
 }
 
 fn main_for_real() {
-    let event_loop = match EventLoop::with_user_event().build() {
-        Ok(e) => e,
-        Err(e) => panic!("Error type: {:?}", e),
-    };
+    let event_loop = EventLoop::with_user_event().build().unwrap();
     event_loop.set_control_flow(ControlFlow::Wait);
 
     let win_attr = WindowAttributes::default()
