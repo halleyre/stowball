@@ -80,6 +80,14 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
             }
 
             WindowEvent::RedrawRequested => {
+                if (surface_config.width * surface_config.height) <= 1 {
+                    let size = window.inner_size();
+                    (*surface_config).width = size.width.max(1);
+                    (*surface_config).height = size.height.max(1);
+                    surface.configure(device, surface_config);
+                    window.request_redraw();
+                    return;
+                }
 
                 let frame = {
                     use wgpu::CurrentSurfaceTexture::*;

@@ -93,11 +93,10 @@ pub async fn init_wgpu(
         cache: None,
     });
 
-    let mut surface_config = surface
-        .get_default_config(&adapter, window_size.width.max(1), window_size.height.max(1))
+    let surface_config = surface
+        .get_default_config(&adapter,
+            window_size.width.max(1), window_size.height.max(1))
         .unwrap();
-    surface_config.width = window_size.width.max(1);
-    surface_config.height = window_size.height.max(1);
     surface.configure(&device, &surface_config);
 
     let _ = event_loop.send_event(super::GraphicsEvent::Wgpu(
