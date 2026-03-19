@@ -35,11 +35,12 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
             else { panic!() };
 
         let proxy = self.event_loop_proxy.clone();
+        let display_handle = event_loop.owned_display_handle();
 
         self.wgpu = graphics::wgpu::WgpuStatus::Pending;
 
         queue_future(async move {
-            graphics::wgpu::init_wgpu(proxy, window).await });
+            graphics::wgpu::init_wgpu(proxy, display_handle, window).await });
     }
 
     fn user_event(&mut self, _event_loop: &ActiveEventLoop, event: GraphicsEvent) {
@@ -81,31 +82,25 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
             WindowEvent::RedrawRequested => {
 
                 let frame = {
-                    use wgpu::SurfaceError::*;
+                    use wgpu::CurrentSurfaceTexture::*;
                     match surface.get_current_texture() {
-                        Ok(frame) => frame,
-                        Err(Timeout) | Err(Other) => {
+                        Success(frame) => frame,
+                        Timeout | Occluded => {
                             window.request_redraw();
                             return;
                         },
-                        Err(Outdated) => {
+                        Outdated | Suboptimal(_) => {
                             surface.configure(device, surface_config);
                             window.request_redraw();
                             return;
                         },
-                        Err(Lost) => {
+                        Lost => {
                             *surface = instance.create_surface(window.clone()).unwrap();
                             surface.configure(device, surface_config);
                             window.request_redraw();
                             return;
                         },
-                        Err(OutOfMemory) => panic!(), }};
-
-                if frame.suboptimal {
-                    surface.configure(device, surface_config);
-                    window.request_redraw();
-                    return;
-                }
+                        Validation => panic!(), }};
 
                 let view = frame.texture.create_view(
                     &wgpu::TextureViewDescriptor::default());

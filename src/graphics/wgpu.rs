@@ -1,6 +1,6 @@
 use std::{borrow::Cow, sync::Arc};
 use winit::{
-    event_loop::EventLoopProxy,
+    event_loop::{EventLoopProxy, OwnedDisplayHandle},
     window::Window,
 };
 use wgpu::{
@@ -26,12 +26,14 @@ pub enum WgpuStatus {
 
 pub async fn init_wgpu(
     event_loop: EventLoopProxy<super::GraphicsEvent>,
+    display_handle: OwnedDisplayHandle,
     window: Arc<Window>) {
 
     let window_size = window.inner_size();
 
     let instance = Instance::new(
-        &wgpu::InstanceDescriptor::from_env_or_default());
+        wgpu::InstanceDescriptor::new_with_display_handle_from_env(
+            Box::new(display_handle)));
 
     let surface = instance.create_surface(window).unwrap();
 
@@ -91,9 +93,11 @@ pub async fn init_wgpu(
         cache: None,
     });
 
-    let surface_config = surface
+    let mut surface_config = surface
         .get_default_config(&adapter, window_size.width.max(1), window_size.height.max(1))
         .unwrap();
+    surface_config.width = window_size.width.max(1);
+    surface_config.height = window_size.height.max(1);
     surface.configure(&device, &surface_config);
 
     let _ = event_loop.send_event(super::GraphicsEvent::Wgpu(

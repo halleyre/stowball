@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+ROOT="$(dirname "${BASH_SOURCE[0]}")/../"
+
+while (($#)); do
+	case "$1" in
+		-d | --debug) DEBUG=true ;; 
+	esac
+	shift
+done
+
+if [[ -n $DEBUG ]] then
+	"${ROOT}/build/target/debug/stowball"
+else
+	"${ROOT}/build/target/release/stowball"
+fi

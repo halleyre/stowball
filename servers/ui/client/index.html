@@ -10,8 +10,6 @@
   <body style="margin:0">
     <canvas id="canvas" style="display:block"></canvas>
     <script type="module">
-      import stowball from "./wasm-pack/stowball.js";
-
       const canvas = document.querySelector("canvas");
       const resize = () => {
         canvas.width = window.innerWidth;
@@ -20,6 +18,7 @@
       resize()
       window.addEventListener('resize', resize)
 
+      import stowball from "./wasm-pack/stowball.js";
       stowball()
     </script>
   </body>
