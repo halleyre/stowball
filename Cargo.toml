@@ -11,7 +11,7 @@ wgpu = "28.0.0"
 winit = "0.30.13"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-tokio = { version = "1.50.0", features = [ "rt" ] }
+tokio = { version = "1.50.0", features = [ "rt-multi-thread", "macros" ] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2.114"
