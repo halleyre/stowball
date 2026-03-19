@@ -24,7 +24,7 @@ serve() {
 if [[ -n $WATCH ]] then
 	serve
 else
-	. $ROOT/scripts/util/background
+	. $ROOT/scripts/util/background.sh
 	LOGDIR="$ROOT/logs/servers/ui"
 	KILL_SCRIPT="$TMPSCRIPTS/stal-kill-ui-server-$TIMESTAMP"
 	background serve

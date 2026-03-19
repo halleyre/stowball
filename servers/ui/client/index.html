@@ -1,15 +1,26 @@
 <!doctype html>
 
 <html>
+
   <head>
     <meta charset="utf-8">
-    <title>Hello World</title>
+    <title>stowball</title>
   </head>
-  <body>
-    <p id="aye"></p>
-    Hey Jude!
-    <script type="module" src="script.js"></script>
-    <p id="bee"></p>
+
+  <body style="margin:0">
+    <canvas style="display:block"></canvas>
+    <script type="module">
+      import stowball from "./wasm-pack/stowball.js";
+
+      const canvas = document.querySelector("canvas");
+      const resize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize()
+      window.addEventListener('resize', resize)
+
+      stowball()
+    </script>
   </body>
 </html>
-
