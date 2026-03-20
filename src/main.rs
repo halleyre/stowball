@@ -35,11 +35,12 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
             else { panic!() };
 
         let proxy = self.event_loop_proxy.clone();
+        let display_handle = event_loop.owned_display_handle();
 
         self.wgpu = graphics::wgpu::WgpuStatus::Pending;
 
         queue_future(async move {
-            graphics::wgpu::init_wgpu(proxy, window).await });
+            graphics::wgpu::init_wgpu(proxy, display_handle, window).await });
     }
 
     fn user_event(&mut self, _event_loop: &ActiveEventLoop, event: GraphicsEvent) {
@@ -79,33 +80,35 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
             }
 
             WindowEvent::RedrawRequested => {
+                if (surface_config.width * surface_config.height) <= 1 {
+                    let size = window.inner_size();
+                    (*surface_config).width = size.width.max(1);
+                    (*surface_config).height = size.height.max(1);
+                    surface.configure(device, surface_config);
+                    window.request_redraw();
+                    return;
+                }
 
                 let frame = {
-                    use wgpu::SurfaceError::*;
+                    use wgpu::CurrentSurfaceTexture::*;
                     match surface.get_current_texture() {
-                        Ok(frame) => frame,
-                        Err(Timeout) | Err(Other) => {
+                        Success(frame) => frame,
+                        Timeout | Occluded => {
                             window.request_redraw();
                             return;
                         },
-                        Err(Outdated) => {
+                        Outdated | Suboptimal(_) => {
                             surface.configure(device, surface_config);
                             window.request_redraw();
                             return;
                         },
-                        Err(Lost) => {
+                        Lost => {
                             *surface = instance.create_surface(window.clone()).unwrap();
                             surface.configure(device, surface_config);
                             window.request_redraw();
                             return;
                         },
-                        Err(OutOfMemory) => panic!(), }};
-
-                if frame.suboptimal {
-                    surface.configure(device, surface_config);
-                    window.request_redraw();
-                    return;
-                }
+                        Validation => panic!(), }};
 
                 let view = frame.texture.create_view(
                     &wgpu::TextureViewDescriptor::default());
@@ -147,10 +150,7 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
 }
 
 fn main_for_real() {
-    let event_loop = match EventLoop::with_user_event().build() {
-        Ok(e) => e,
-        Err(e) => panic!("Error type: {:?}", e),
-    };
+    let event_loop = EventLoop::with_user_event().build().unwrap();
     event_loop.set_control_flow(ControlFlow::Wait);
 
     let win_attr = WindowAttributes::default()
