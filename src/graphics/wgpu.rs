@@ -28,6 +28,14 @@ pub async fn init_wgpu(
     event_loop: EventLoopProxy<super::GraphicsEvent>,
     display_handle: OwnedDisplayHandle,
     window: Arc<Window>) {
+    use wgpu::{
+        RequestAdapterOptions,
+        DeviceDescriptor,
+        ShaderModuleDescriptor,
+        ShaderSource::Wgsl,
+        PipelineLayoutDescriptor,
+        RenderPipelineDescriptor,
+    };
 
     let window_size = window.inner_size();
 
@@ -37,32 +45,24 @@ pub async fn init_wgpu(
 
     let surface = instance.create_surface(window).unwrap();
 
-    let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
-            power_preference: Default::default(),
-            force_fallback_adapter: false,
-            compatible_surface: Some(&surface),
-        }).await.unwrap();
+    let adapter = instance.request_adapter(&RequestAdapterOptions {
+        compatible_surface: Some(&surface),
+        ..Default::default()
+    }).await.unwrap();
 
     let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor {
-            label: None,
-            required_features: wgpu::Features::empty(),
-            // Make sure we use the texture resolution limits from the adapter,
-            // so we can support images the size of the swapchain.
-            required_limits: wgpu::Limits::downlevel_webgl2_defaults()
+        .request_device(&DeviceDescriptor {
+            required_limits: wgpu::Limits::downlevel_defaults()
                 .using_resolution(adapter.limits()),
-            experimental_features: wgpu::ExperimentalFeatures::disabled(),
-            memory_hints: wgpu::MemoryHints::MemoryUsage,
-            trace: wgpu::Trace::Off,
+            ..Default::default()
         }).await.unwrap();
 
-    // Load the shaders from disk
-    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+    let shader = device.create_shader_module(ShaderModuleDescriptor {
         label: None,
-        source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shaders/simple.wgsl"))),
+        source: Wgsl(Cow::Borrowed(include_str!("shaders/simple.wgsl"))),
     });
 
-    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+    let pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
         label: None,
         bind_group_layouts: &[],
         immediate_size: 0,
@@ -71,7 +71,7 @@ pub async fn init_wgpu(
     let swapchain_capabilities = surface.get_capabilities(&adapter);
     let swapchain_format = swapchain_capabilities.formats[0];
 
-    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+    let render_pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
         label: None,
         layout: Some(&pipeline_layout),
         vertex: wgpu::VertexState {
