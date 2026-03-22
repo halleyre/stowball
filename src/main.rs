@@ -73,8 +73,8 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
         match event {
 
             WindowEvent::Resized(size) => {
-                (*surface_config).width = size.width.max(1);
-                (*surface_config).height = size.height.max(1);
+                (*surface_config).width = 1; // size.width.max(1);
+                (*surface_config).height = 1; // size.height.max(1);
                 surface.configure(device, surface_config);
                 window.request_redraw();
             }
