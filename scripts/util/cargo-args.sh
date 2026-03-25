@@ -6,4 +6,6 @@ RELEASE_ARGS=(--release
 	-Zpanic-immediate-abort
 	-Zbuild-std=std,panic_abort)
 
-DEBUG_ARGS=()
+DEBUG_ARGS=(
+	--features telemetry
+)

@@ -1,8 +1,10 @@
 mod graphics;
+mod telemetry;
 
 use graphics::{Graphics, GraphicsEvent};
 
 use std::sync::Arc;
+use tracing::{instrument, info};
 use winit::{
     application::ApplicationHandler,
     event::WindowEvent,
@@ -54,6 +56,7 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
         }
     }
 
+    #[instrument(skip(self, event_loop))]
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _id: WindowId, event: WindowEvent) {
         if event == WindowEvent::CloseRequested {
             event_loop.exit();
@@ -73,6 +76,7 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
         match event {
 
             WindowEvent::Resized(size) => {
+                info!(width = size.width, height = size.height, "resize event");
                 (*surface_config).width = 1; // size.width.max(1);
                 (*surface_config).height = 1; // size.height.max(1);
                 surface.configure(device, surface_config);
@@ -150,6 +154,9 @@ impl ApplicationHandler<GraphicsEvent> for Graphics {
 }
 
 fn main_for_real() {
+    #[cfg(feature = "telemetry")]
+    let _telemetry = telemetry::init();
+    
     let event_loop = EventLoop::with_user_event().build().unwrap();
     event_loop.set_control_flow(ControlFlow::Wait);
 

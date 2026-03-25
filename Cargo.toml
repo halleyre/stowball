@@ -3,12 +3,30 @@ name = "stowball"
 version = "0.1.0"
 edition = "2024"
 
-# [lib]
-# crate-type = ["cdylib"]
+[features]
+default = []
+telemetry = [
+    "tracing/release_max_level_info",
+    "dep:tracing-subscriber",
+    "dep:tracing-opentelemetry",
+    "dep:opentelemetry",
+    "dep:opentelemetry_sdk",
+    "dep:opentelemetry-otlp",
+    "dep:opentelemetry-semantic-conventions",
+]
 
 [dependencies]
+tracing = { version = "0.1.44", default-features = false }
+
 wgpu = "29.0.0"
 winit = "0.30.13"
+
+tracing-subscriber  = { version = "0.3", optional = true, features = ["env-filter"] }
+tracing-opentelemetry = { version = "0.31.0", optional = true }
+opentelemetry        = { version = "0.31.0", optional = true }
+opentelemetry_sdk    = { version = "0.31.0", optional = true, features = ["rt-tokio"] }
+opentelemetry-otlp   = { version = "0.31.0", optional = true, features = ["http-proto", "reqwest-client"] }
+opentelemetry-semantic-conventions = { version = "0.31.0", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.50.0", features = [ "rt-multi-thread", "macros" ] }
